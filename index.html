@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Agenda de Contatos</title> 
+</head> 
+<body onload="exibirContatos()">
+<body>
+  <h1>Agenda De Contatos</h1> 
+  <button onclick="exibirContatos()">Listar Contatos</button>
+  <button onclick="adicionarContato()">Adicionar Contato</button>
+  <button onclick="editarContato()">Editar Contato</button>
+  <button onclick="removerContato()">Remover Contato</button> 
+  <table id="contatosTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Telefone</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+    <script>
+   let arrayContatos = [];
+function carregarContatos() {
+  const contatosArmazenados = localStorage.getItem('arrayContatos');
+  if (contatosArmazenados) {
+    arrayContatos = JSON.parse(contatosArmazenados);
+  }
+}
+let proximoID = 0;
+
+function adicionarContato() {
+  let nome = prompt("Digite o nome do contato a ser adicionado");
+  let telefone = parseInt(prompt("Digite o telefone (somente números)"));
+
+  if (!isNaN(telefone)) {
+    let novoContato = {
+      id: proximoID,  
+      nome: nome,
+      telefone: telefone
+    };
+
+    proximoID++; 
+
+    arrayContatos.push(novoContato);
+    gravarContatos();
+    console.clear();
+    console.log("Contato adicionado com sucesso!");
+  } else {
+    console.clear();
+    console.log("Telefone inválido");
+    adicionarContato();
+  }
+
+  exibirContatos();
+}
+
+function editarContato() {
+  exibirContatos();
+  let id = parseInt(prompt("Digite o ID do contato que você quer editar"));
+
+  console.clear();
+
+  let contatoIndex = arrayContatos.findIndex(cont => cont.id === id);
+
+  if (contatoIndex !== -1) {
+    let contato = arrayContatos[contatoIndex];
+
+    console.log(`-----------------------------------`);
+    console.log(`Selecionado`);
+    console.log(`ID: ${contato.id}`);
+    console.log(`Nome: ${contato.nome}`);
+    console.log(`Telefone: ${contato.telefone}`);
+    console.log(`-----------------------------------`);
+    console.log("O que você quer editar?");
+    console.log("1 = Nome do contato");
+    console.log("2 = Telefone do contato"); 
+       let item = parseInt(prompt("O que você quer editar?\n1 - Nome do contato\n2 - Telefone do contato"));
+
+    console.clear();
+
+    if (item === 1) {
+      let novoNome = prompt("Digite o novo nome do contato");
+      arrayContatos[contatoIndex].nome = novoNome;
+
+      gravarContatos();
+      console.clear();
+      console.log("Contato editado com sucesso!");
+    } else if (item === 2) {
+      let novoTelefone = parseInt(prompt("Digite o novo telefone do contato (somente números)"));
+
+      if (!isNaN(novoTelefone)) {
+        arrayContatos[contatoIndex].telefone = novoTelefone;
+
+        gravarContatos();
+        console.clear();
+        console.log("Contato editado com sucesso!");
+      } else {
+        console.clear();
+        console.log("Telefone inválido");
+        editarContato();
+      }
+    } else {
+      console.log("Opção inválida");
+    }
+  } else {
+    console.log("Contato não encontrado");
+  }
+
+  exibirContatos();
+}
+
+function removerContato() {
+  exibirContatos();
+  let id = parseInt(prompt("Digite o ID do contato que você quer remover"));
+
+  let contatoIndex = arrayContatos.findIndex(cont => cont.id === id);
+
+  if (contatoIndex !== -1) {
+    arrayContatos.splice(contatoIndex, 1);
+    gravarContatos();
+    console.clear();
+    console.log("Contato removido com sucesso!");
+  } else {
+    console.log("Contato não encontrado");
+  }
+
+  exibirContatos();
+}
+
+function gravarContatos() {
+  try {
+    localStorage.setItem('arrayContatos', JSON.stringify(arrayContatos));
+    console.log("Contatos gravados no localStorage.");
+  } catch (err) {
+    console.error('Ocorreu um erro ao gravar os contatos no localStorage:', err);
+  }
+}
+
+function organizarPorNome() {
+  arrayContatos.sort((a, b) => {
+    const nomeA = a.nome.toUpperCase();
+    const nomeB = b.nome.toUpperCase();
+    if (nomeA < nomeB) {
+      return -1;
+    }
+    if (nomeA > nomeB) {
+      return 1;
+    }
+    return 0;
+  });
+}
+
+function exibirContatos() {
+  let tableBody = document.getElementById("contatosTable").getElementsByTagName("tbody")[0];
+  tableBody.innerHTML = "";
+  carregarContatos();
+  organizarPorNome();
+
+  console.log('CONTATOS');
+  for (let i = 0; i < arrayContatos.length; i++) {
+    let contato = arrayContatos[i];
+
+    let row = tableBody.insertRow();
+    let idCell = row.insertCell();
+    let nomeCell = row.insertCell();
+    let telefoneCell = row.insertCell();
+
+    idCell.textContent = contato.id;
+    nomeCell.textContent = contato.nome;
+    telefoneCell.textContent = contato.telefone;
+  }
+}
+  </script>
+</body>
+</html> 
